@@ -22,7 +22,7 @@ export default function Home() {
     <main>
       <Header />
       <HeroSection onGetQuote={scrollToQuote} />
-      <div className="-mt-6 relative z-10">
+      <div className="-mt-32 relative z-10">
         <QuoteForm id="quote-form" />
       </div>
       <TrustSection onGetQuote={scrollToQuote} />
