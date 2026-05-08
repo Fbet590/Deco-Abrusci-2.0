@@ -21,7 +21,7 @@ export function HeroSection({ onGetQuote }: { onGetQuote: () => void }) {
         <p className="text-xs font-medium uppercase tracking-[0.3em] text-accent mb-6">
           Established Craftsmanship
         </p>
-        <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-primary-foreground sm:text-5xl md:text-6xl lg:text-7xl xl:text-[85px] text-balance">
+        <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-primary-foreground sm:text-5xl md:text-6xl lg:text-7xl xl:text-[90px] text-balance">
           $7500. Flat Price. New Outdoor Space. Done.
         </h1>
         <p className="mx-auto mt-8 max-w-2xl text-base text-white/85 leading-relaxed sm:text-lg">
