@@ -20,118 +20,8 @@ const CONTACT_STEPS: Step[] = [
   { title: "Best number to reach you", type: "text", placeholder: "(555) 123-4567", field: "phone" },
 ]
 
-const PROJECT_TYPE_STEP: Step = {
-  title: "What kind of project do you have in mind?",
-  type: "select",
-  options: [
-    { label: "Patio Cover" },
-    { label: "Zipper Screen" },
-    { label: "Retractable Awning" },
-    { label: "Interior Shades" },
-  ],
-}
-
-const PATIO_STRUCTURE_STEP: Step = {
-  title: "What type of structure are you considering?",
-  type: "select",
-  options: [
-    { label: "Insulated Top" },
-    { label: "Lattice (Partial sunlight)" },
-    { label: "Louvered (Adjustable)" },
-  ],
-}
-
-const PATIO_BUDGET_STEP: Step = {
-  title: "What is your approximate budget?",
-  type: "select",
-  options: [
-    { label: "$6,000 - $9,000" },
-    { label: "$10,000 - $15,000" },
-    { label: "$25,000+ (Custom)" },
-  ],
-}
-
-const PATIO_LOCATION_STEP: Step = {
-  title: "Where will the structure be positioned?",
-  type: "select",
-  options: [
-    { label: "Attached to residence" },
-    { label: "Free-standing" },
-  ],
-}
-
-const ZIPPER_BENEFITS_STEP: Step = {
-  title: "What benefits are you looking for?",
-  type: "select",
-  options: [
-    { label: "Added Privacy" },
-    { label: "Bug Protection" },
-    { label: "Sun/Heat Protection" },
-  ],
-}
-
-const ZIPPER_BUDGET_STEP: Step = {
-  title: "What is your approximate budget?",
-  type: "select",
-  options: [
-    { label: "$1,000 - $2,500" },
-    { label: "$3,000 - $5,000" },
-    { label: "$5,000+ (Custom)" },
-  ],
-}
-
-const AWNING_LOCATION_STEP: Step = {
-  title: "Where would you like to add these?",
-  type: "select",
-  options: [
-    { label: "Attached to Pergola" },
-    { label: "Attached to Windows" },
-  ],
-}
-
-const AWNING_BUDGET_STEP: Step = {
-  title: "What is your approximate budget?",
-  type: "select",
-  options: [
-    { label: "$1,000 - $2,500" },
-    { label: "$3,000 - $5,000" },
-    { label: "$5,000+ (Custom)" },
-  ],
-}
-
-const SHADES_BUDGET_STEP: Step = {
-  title: "What is your approximate budget?",
-  type: "select",
-  options: [
-    { label: "$500 - $1,000" },
-    { label: "$1,500 - $3,500" },
-    { label: "$5,000+" },
-  ],
-}
-
-const SHADES_WINDOWS_STEP: Step = {
-  title: "How many windows need shades?",
-  type: "select",
-  options: [
-    { label: "1-3" },
-    { label: "5-10" },
-    { label: "10+" },
-  ],
-}
-
-function getSteps(projectType: string | undefined): Step[] {
-  switch (projectType) {
-    case "Patio Cover":
-      return [PROJECT_TYPE_STEP, PATIO_STRUCTURE_STEP, PATIO_BUDGET_STEP, PATIO_LOCATION_STEP, ...CONTACT_STEPS]
-    case "Zipper Screen":
-      return [PROJECT_TYPE_STEP, ZIPPER_BENEFITS_STEP, ZIPPER_BUDGET_STEP, ...CONTACT_STEPS]
-    case "Retractable Awning":
-      return [PROJECT_TYPE_STEP, AWNING_LOCATION_STEP, AWNING_BUDGET_STEP, ...CONTACT_STEPS]
-    case "Interior Shades":
-      return [PROJECT_TYPE_STEP, SHADES_BUDGET_STEP, SHADES_WINDOWS_STEP, ...CONTACT_STEPS]
-    default:
-      return [PROJECT_TYPE_STEP, ...CONTACT_STEPS]
-  }
+function getSteps(): Step[] {
+  return CONTACT_STEPS
 }
 
 export function QuoteForm({ id }: { id?: string }) {
@@ -143,8 +33,7 @@ export function QuoteForm({ id }: { id?: string }) {
   const [slideDirection, setSlideDirection] = useState<"up" | "down">("up")
   const sectionRef = useRef<HTMLElement>(null)
 
-  const projectType = answers[0]
-  const steps = useMemo(() => getSteps(projectType), [projectType])
+  const steps = useMemo(() => getSteps(), [])
 
   const step = steps[currentStep]
   const totalSteps = steps.length
@@ -189,39 +78,11 @@ export function QuoteForm({ id }: { id?: string }) {
   }
 
   const buildPayload = useCallback(() => {
-    const data: Record<string, string> = {
-      project_type: answers[0] || "",
+    return {
+      name: answers[0] || "",
+      email: answers[1] || "",
+      phone: answers[2] || "",
     }
-
-    const pt = answers[0]
-    if (pt === "Patio Cover") {
-      data.structure_type = answers[1] || ""
-      data.budget = answers[2] || ""
-      data.location = answers[3] || ""
-      data.name = answers[4] || ""
-      data.email = answers[5] || ""
-      data.phone = answers[6] || ""
-    } else if (pt === "Zipper Screen") {
-      data.benefits = answers[1] || ""
-      data.budget = answers[2] || ""
-      data.name = answers[3] || ""
-      data.email = answers[4] || ""
-      data.phone = answers[5] || ""
-    } else if (pt === "Retractable Awning") {
-      data.placement = answers[1] || ""
-      data.budget = answers[2] || ""
-      data.name = answers[3] || ""
-      data.email = answers[4] || ""
-      data.phone = answers[5] || ""
-    } else if (pt === "Interior Shades") {
-      data.budget = answers[1] || ""
-      data.window_count = answers[2] || ""
-      data.name = answers[3] || ""
-      data.email = answers[4] || ""
-      data.phone = answers[5] || ""
-    }
-
-    return data
   }, [answers])
 
   const handleSubmit = async () => {
@@ -239,7 +100,7 @@ export function QuoteForm({ id }: { id?: string }) {
       setSubmitted(true)
       if (typeof window !== "undefined" && typeof (window as any).fbq === "function") {
         (window as any).fbq("track", "Lead", {
-          content_name: buildPayload().project_type,
+          content_name: "$7.5K Pergola Package Inquiry",
         })
       }
     }
@@ -272,10 +133,10 @@ export function QuoteForm({ id }: { id?: string }) {
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 h-px w-12 bg-accent" />
           <p className="text-sm font-bold uppercase tracking-[0.3em] text-accent">
-            Begin Your Consultation
+            Not Every Space Qualifies. Yours Might.
           </p>
           <h2 className="mt-3 font-serif text-4xl font-bold text-primary-foreground sm:text-5xl text-balance">
-            Tell Us About Your Project
+            See If You Qualify for the $7.5K Pergola Package
           </h2>
         </div>
 
