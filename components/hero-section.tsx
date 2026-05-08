@@ -6,7 +6,7 @@ import { ArrowRight, MapPin, CalendarCheck, ShieldCheck, Lock, FileCheck } from 
 
 export function HeroSection({ onGetQuote }: { onGetQuote: () => void }) {
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16 sm:pt-0 pb-24">
       <Image
         src="/images/hero-patio.jpg"
         alt="Beautiful luxury patio cover"
@@ -30,7 +30,7 @@ export function HeroSection({ onGetQuote }: { onGetQuote: () => void }) {
         <div className="mt-12 flex items-center justify-center gap-6">
           <Button
             onClick={onGetQuote}
-            className="bg-[#D09945] text-black hover:bg-[#B8832E] font-bold text-sm uppercase tracking-widest px-10 py-7 rounded-lg gap-2.5 border-2 border-[#E8B866] shadow-[0_0_10px_rgba(208,153,69,0.15)] hover:shadow-[0_0_16px_rgba(208,153,69,0.25)] transition-all duration-300"
+            className="bg-[#D09945] text-black hover:bg-[#B8832E] font-bold text-sm uppercase tracking-widest px-10 py-7 rounded-lg gap-2.5 border-2 border-[#E8B866] shadow-[0_0_10px_rgba(208,153,69,0.15)] hover:shadow-[0_0_20px_rgba(208,153,69,0.4)] hover:scale-105 transition-all duration-300 animate-pulse-subtle"
           >
             SEE IF MY SPACE QUALIFIES
             <ArrowRight className="h-4.5 w-4.5" />
