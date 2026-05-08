@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Check, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Sparkles, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type Step = {
@@ -24,6 +24,72 @@ function getSteps(): Step[] {
   return CONTACT_STEPS
 }
 
+// Validation functions
+function isValidEmail(email: string): boolean {
+  // Check for basic email structure with proper domain
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  if (!emailRegex.test(email)) return false
+  
+  // Block common fake/disposable email patterns
+  const fakeDomains = ['test.com', 'fake.com', 'example.com', 'asdf.com', 'qwerty.com', 'abc.com', 'xyz.com', 'aaa.com', 'bbb.com', '123.com']
+  const domain = email.split('@')[1]?.toLowerCase()
+  if (fakeDomains.includes(domain)) return false
+  
+  // Block obviously fake local parts
+  const localPart = email.split('@')[0]?.toLowerCase()
+  const fakePatterns = ['asdf', 'qwerty', 'test', 'fake', 'aaa', 'bbb', 'xxx', '123456', 'abcdef']
+  if (fakePatterns.some(pattern => localPart === pattern)) return false
+  
+  return true
+}
+
+function isValidPhone(phone: string): boolean {
+  // Remove all non-digit characters
+  const digitsOnly = phone.replace(/\D/g, '')
+  
+  // Must have 10 digits (US) or 11 digits (with country code)
+  if (digitsOnly.length < 10 || digitsOnly.length > 11) return false
+  
+  // If 11 digits, first digit must be 1 (US country code)
+  if (digitsOnly.length === 11 && digitsOnly[0] !== '1') return false
+  
+  // Get the 10-digit number (strip country code if present)
+  const tenDigits = digitsOnly.length === 11 ? digitsOnly.slice(1) : digitsOnly
+  
+  // Area code (first 3 digits) cannot start with 0 or 1
+  if (tenDigits[0] === '0' || tenDigits[0] === '1') return false
+  
+  // Block obviously fake patterns
+  const fakePatterns = ['1234567890', '0000000000', '1111111111', '2222222222', '5555555555', '9999999999', '1231231234', '5551234567']
+  if (fakePatterns.includes(tenDigits)) return false
+  
+  // Block sequential patterns
+  if (tenDigits === '0123456789' || tenDigits === '9876543210') return false
+  
+  // Block repeating digit patterns (e.g., 8888888888)
+  if (/^(\d)\1{9}$/.test(tenDigits)) return false
+  
+  return true
+}
+
+function getValidationError(field: string | undefined, value: string): string | null {
+  if (!value) return null
+  
+  if (field === 'email') {
+    if (!isValidEmail(value)) {
+      return 'Please enter a valid email address'
+    }
+  }
+  
+  if (field === 'phone') {
+    if (!isValidPhone(value)) {
+      return 'Please enter a valid 10-digit phone number'
+    }
+  }
+  
+  return null
+}
+
 export function QuoteForm({ id }: { id?: string }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [answers, setAnswers] = useState<Record<number, string>>({})
@@ -31,6 +97,8 @@ export function QuoteForm({ id }: { id?: string }) {
   const [submitting, setSubmitting] = useState(false)
   const [animating, setAnimating] = useState(false)
   const [slideDirection, setSlideDirection] = useState<"up" | "down">("up")
+  const [validationErrors, setValidationErrors] = useState<Record<number, string | null>>({})
+  const [touched, setTouched] = useState<Record<number, boolean>>({})
   const sectionRef = useRef<HTMLElement>(null)
 
   const steps = useMemo(() => getSteps(), [])
@@ -106,7 +174,9 @@ export function QuoteForm({ id }: { id?: string }) {
     }
   }
 
-  const canProceed = answers[currentStep] !== undefined && answers[currentStep] !== ""
+  const currentValue = answers[currentStep] || ""
+  const currentError = getValidationError(step.field, currentValue)
+  const canProceed = currentValue !== "" && !currentError
 
   if (submitted) {
     return (
@@ -227,17 +297,57 @@ export function QuoteForm({ id }: { id?: string }) {
               )}
 
               {step.type === "text" && (
-                <div className="relative group">
-                  <Input
-                    type={step.field === "email" ? "email" : step.field === "phone" ? "tel" : "text"}
-                    placeholder={step.placeholder}
-                    value={answers[currentStep] || ""}
-                    onChange={(e) => {
-                      setAnswers((prev) => ({ ...prev, [currentStep]: e.target.value }))
-                    }}
-                    className="h-14 text-base border-2 border-border bg-card rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 tracking-wide transition-all duration-300 hover:border-accent/50 pl-4"
-                  />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <div className="space-y-2">
+                  <div className="relative group">
+                    <Input
+                      type={step.field === "email" ? "email" : step.field === "phone" ? "tel" : "text"}
+                      placeholder={step.placeholder}
+                      value={answers[currentStep] || ""}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setAnswers((prev) => ({ ...prev, [currentStep]: value }))
+                        // Validate on change if field has been touched
+                        if (touched[currentStep]) {
+                          setValidationErrors((prev) => ({ 
+                            ...prev, 
+                            [currentStep]: getValidationError(step.field, value) 
+                          }))
+                        }
+                      }}
+                      onBlur={() => {
+                        setTouched((prev) => ({ ...prev, [currentStep]: true }))
+                        setValidationErrors((prev) => ({ 
+                          ...prev, 
+                          [currentStep]: getValidationError(step.field, answers[currentStep] || "") 
+                        }))
+                      }}
+                      className={cn(
+                        "h-14 text-base border-2 bg-card rounded-xl focus:ring-2 tracking-wide transition-all duration-300 pl-4",
+                        touched[currentStep] && validationErrors[currentStep]
+                          ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                          : touched[currentStep] && answers[currentStep] && !validationErrors[currentStep]
+                          ? "border-green-500 focus:border-green-500 focus:ring-green-500/20"
+                          : "border-border focus:border-accent focus:ring-accent/20 hover:border-accent/50"
+                      )}
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                    {touched[currentStep] && answers[currentStep] && !validationErrors[currentStep] && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <Check className="h-5 w-5 text-green-500" />
+                      </div>
+                    )}
+                    {touched[currentStep] && validationErrors[currentStep] && (
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <AlertCircle className="h-5 w-5 text-red-500" />
+                      </div>
+                    )}
+                  </div>
+                  {touched[currentStep] && validationErrors[currentStep] && (
+                    <p className="text-sm text-red-500 flex items-center gap-1.5">
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      {validationErrors[currentStep]}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
