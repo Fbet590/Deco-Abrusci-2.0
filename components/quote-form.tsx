@@ -136,7 +136,7 @@ export function QuoteForm({ id }: { id?: string }) {
             Not Every Space Qualifies. Yours Might.
           </p>
           <h2 className="mt-3 font-serif text-4xl font-bold text-primary-foreground sm:text-5xl text-balance">
-            See If You Qualify for the $7.5K Pergola Package
+            See if Your Space Qualifies for Our $7.5K Pergola Package
           </h2>
         </div>
 
