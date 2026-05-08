@@ -22,18 +22,17 @@ export function HeroSection({ onGetQuote }: { onGetQuote: () => void }) {
           Established Craftsmanship
         </p>
         <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-primary-foreground sm:text-5xl md:text-6xl lg:text-7xl text-balance">
-          Transform Your Outdoors with Custom Patio Covers Designed to Impress
+          $7500. Flat Price. New Outdoor Space. Done.
         </h1>
         <p className="mx-auto mt-8 max-w-2xl text-base text-white/85 leading-relaxed sm:text-lg">
-          Handcrafted patio covers that turn ordinary backyards into luxury retreats.
-          Precision engineering. Uncompromising quality.
+          We handle everything from design to install — you just enjoy the result.
         </p>
         <div className="mt-12 flex items-center justify-center gap-6">
           <Button
             onClick={onGetQuote}
             className="bg-[#D09945] text-black hover:bg-[#B8832E] font-bold text-sm uppercase tracking-widest px-10 py-7 rounded-lg gap-2.5 border-2 border-[#E8B866] shadow-[0_0_10px_rgba(208,153,69,0.15)] hover:shadow-[0_0_16px_rgba(208,153,69,0.25)] transition-all duration-300"
           >
-            Request a Consultation
+            SEE IF MY SPACE QUALIFIES
             <ArrowRight className="h-4.5 w-4.5" />
           </Button>
         </div>
