@@ -24,18 +24,6 @@ const SERVICES = [
       "Precision-adjustable panels for controlled sunlight, shade, and ventilation.",
     image: "/images/louvered-new.jpg",
   },
-  {
-    title: "Retractable Awning",
-    description:
-      "Professionally installed retractable shade for flexible outdoor living.",
-    image: "/images/awning.jpg",
-  },
-  {
-    title: "Zipper Screens",
-    description:
-      "Seamless enclosure providing privacy, insect protection, and refined aesthetics.",
-    image: "/images/zipper-screen-new.jpg",
-  },
 ]
 
 export function ServicesSection({ onGetQuote }: { onGetQuote: () => void }) {
